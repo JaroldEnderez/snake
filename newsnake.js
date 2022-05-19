@@ -5,13 +5,45 @@ const FOOD_COLOUR = '#e66916';
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = canvas.height =400;
+canvas.width = canvas.height =400; 
 
+var isDead = false;
+var currentScore= highScore=0;
 const FR = 5;
 const S = 20;
 const T = canvas.width / S;
+var gameOver = false;
 
 let pos, vel, food, snake;
+
+function welcome(){
+
+  ctx.fillStyle = '#231f20';
+  ctx.fillRect(0,0,canvas.height,canvas.width);
+
+  ctx.font = "30px Bold Courier New ";
+  ctx.fillStyle = 'rgb(255,255,255)';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = "center";
+  ctx.fillText("YOU DIED!", canvas.width/2, canvas.height/4);
+  
+  ctx.font = "15px Bold Courier New ";
+  ctx.fillStyle = 'rgb(255,255,255)';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = "center";
+  ctx.fillText("Press Enter to play again", canvas.width/2, canvas.height/2);
+
+  document.addEventListener("keypress", function(event) {
+    // If the user presses the "Enter" key on the keyboard
+    if (event.key === "Enter") {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      init();
+    }
+  });
+}
+
 
 function init(){
   pos = {x: 10, y: 10};
@@ -27,6 +59,7 @@ function init(){
 }
 
 init();
+
 
 function randomFood(){
   food = {
@@ -80,20 +113,35 @@ function gameLoop(){
   pos.y += vel.y;
 
   if (pos.x < 0 || pos.x > T || pos.y < 0 || pos.y > T) {
-    init();
+    currentScore=0;
+    
+    welcome();
+    
   }
 
   if (food.x === pos.x && food.y === pos.y) {
+    var scorediv = document.getElementById('scorediv');
+
+    currentScore++;
+
     snake.push({...pos});
     pos.x += vel.x;
     pos.y += vel.y;
+
+    scorediv.innerHTML = "High Score: "+highScore+" Score: "+currentScore;
+    if(currentScore>=highScore){
+      highScore=currentScore;
+      scorediv.innerHTML = "High Score: "+highScore+" Score: "+currentScore;
+    }
     randomFood();
   }
 
   if (vel.x || vel.y) {
     for (let cell of snake) {
       if (cell.x === pos.x && cell.y === pos.y) {
-        return init();
+        welcome();
+        currentScore=0;
+        scorediv.innerHTML = "High Score: "+highScore+" Score: "+currentScore;
       }
     }
     snake.push({...pos});
